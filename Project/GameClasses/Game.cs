@@ -167,28 +167,28 @@ namespace Project.GameClasses
 
             for (int i = 0; i < Level * 3; i++)
             {
-                int x = rnd.Next(30) + 1;
-                while(x>14 && x < 18) { x = rnd.Next(30) + 1; }
-                int y = rnd.Next(15) + 1;
+                int x = rnd.Next(28) + 1;
+                while(x>14 && x < 18) { x = rnd.Next(28) + 1; }
+                int y = rnd.Next(13) + 1;
                 while (EnviromentGrid[y][x]!=null)
                 {
-                    x = rnd.Next(30) + 1;
-                    while (x > 14 && x < 18) { x = rnd.Next(30) + 1; }
-                    y = rnd.Next(15) + 1;
+                    x = rnd.Next(28) + 1;
+                    while (x > 14 && x < 18) { x = rnd.Next(28) + 1; }
+                    y = rnd.Next(13) + 1;
                 }
 
                 AddEnemy(weakEnemies[rnd.Next(3)], "Enemy" + i, x*50, y*50, 10+Level*5) ;
             }
             for (int i = 0; i < Level; i++)
             {
-                int x = rnd.Next(29) + 2;
+                int x = rnd.Next(28) + 2;
                 while (x > 14 && x < 18) { x = rnd.Next(30) + 1; }
-                int y = rnd.Next(14) + 2;
+                int y = rnd.Next(13) + 2;
                 while (EnviromentGrid[y][x] != null)
                 {
-                    x = rnd.Next(29) + 2;
-                    while (x > 14 && x < 18) { x = rnd.Next(30) + 1; }
-                    x = rnd.Next(14) + 2;
+                    x = rnd.Next(28) + 2;
+                    while (x > 14 && x < 18) { x = rnd.Next(28) + 1; }
+                    x = rnd.Next(13) + 2;
                 }
                 AddEnemy(strongEnemies[rnd.Next(4)], "Enemy" + i, x * 50+25, y * 50+25, 10 + Level * 5);
             }

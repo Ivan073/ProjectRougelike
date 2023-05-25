@@ -244,7 +244,7 @@ namespace Project.GameClasses
                         var temp = Consumable;
                         Consumable = (Consumable)item.AssociatedItem;
                         Game.RemovePickup();
-                        Game.AddItem(temp, item.X, item.Y);
+                        if(temp!=null)Game.AddItem(temp, item.X, item.Y);
                         break;
                     }
 
