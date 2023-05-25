@@ -11,6 +11,8 @@
 
         public bool IsVisible = true;
 
+        public static Image? Sprite = null;
+
         public Entity()
         {
         }

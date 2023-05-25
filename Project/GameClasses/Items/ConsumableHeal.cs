@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Project.GameClasses.Items
 {
-    internal class ConsumableHeal : Consumable
+    public class ConsumableHeal : Consumable
     {
-
+        public new static Image? Sprite = Image.FromFile("Images/consumable.png");
         public double Heal { get; set; }
         
         public ConsumableHeal(double heal,double cost)
@@ -20,7 +20,6 @@ namespace Project.GameClasses.Items
         {
             if (Game.Player.Health!=Game.Player.MaxHealth && Game.Player.UseMana(Cost))
             {
-
                 Game.Player.Consumable = null;
                 Game.Player.IncreaseHealth(Heal);
             }

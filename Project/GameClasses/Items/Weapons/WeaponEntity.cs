@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.GameClasses.Items
+namespace Project.GameClasses.Items.Weapons
 {
-    internal class WeaponEntity:Entity
+    public class WeaponEntity : Entity
     {
         Weapon AssociatedWeapon;
     }

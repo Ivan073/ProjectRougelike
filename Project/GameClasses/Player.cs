@@ -1,10 +1,21 @@
-﻿using Project.GameClasses.EnviromentObjects;
+﻿using Project.GameClasses.EnviromentObjects.RoundEnvirometObjects;
+using Project.GameClasses.EnviromentObjects.SquareEnviromentObjects;
 using Project.GameClasses.Items;
+using Project.GameClasses.Items.Weapons;
+using System.Drawing;
+using System.Security.Policy;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Project.GameClasses
 {
-    internal class Player : Damageable
+    public class Player : Damageable
     {
+        public new static Image? Sprite = Image.FromFile("Images/player.png");
+        private string direction = "up";
+
+        public delegate void Empty();
+        public event Empty ExitReached;
+
         private static System.Threading.Timer? upTimer = null;
         private static System.Threading.Timer? downTimer = null;
         private static System.Threading.Timer? leftTimer = null;
@@ -21,16 +32,20 @@ namespace Project.GameClasses
         public double MaxMana { get { return maxMana; } }
 
         public Armor? Armor { get; set; } = null;
+         
         public Consumable? Consumable { get; set; } = null;
         public Weapon? FirstWeapon { get; set; } = null;
+        public System.Threading.Timer? FirstWeaponCooldownTimer = null;
         public Weapon? SecondWeapon { get; set; } = null;
+        public System.Threading.Timer? SecondWeaponCooldownTimer = null;
 
 
 
         public Player()
         {
+            Sprite.RotateFlip(RotateFlipType.Rotate90FlipNone);
             X = 800;
-            Y = 750;
+            Y = 825;
             health = 100;
             maxHealth = 100;
             mana = 100;
@@ -40,13 +55,14 @@ namespace Project.GameClasses
 
             manaRestore = new System.Threading.Timer(new TimerCallback((s) =>
             {
+                if (Armor != null)
                 if (!Armor.Active && mana + 1 <=maxMana) { mana++; }
-            }), null, 0, 500);
+            }), null, 0, 250);
 
             Armor = new Armor(10, 0.8);
             Consumable = new ConsumableHeal(100,25);
-            FirstWeapon = new AreaWeapon(50, 300, 2, 3);
-            SecondWeapon = new AreaWeapon(100, 100, 2, 3);
+            FirstWeapon = new AreaWeapon(50, 300, 1.5, 3);
+            SecondWeapon = new ProjectileWeapon(100, 60, 0.8, 10, 3);
         }
 
         public bool UseMana(double toUse)
@@ -62,6 +78,16 @@ namespace Project.GameClasses
             {
                 case Keys.W:
                     {
+                        string[] dirs = { "up", "left", "down", "right" };
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (direction != dirs[i]) { Sprite.RotateFlip(RotateFlipType.Rotate90FlipNone); }
+                            else { break; }
+                        }
+                        direction = "up";
+
+
+
                         downTimer?.Dispose();
                         upTimer?.Dispose();
                         upTimer = new System.Threading.Timer(new TimerCallback((s) =>
@@ -72,6 +98,13 @@ namespace Project.GameClasses
                     }
                 case Keys.A:
                     {
+                        string[] dirs = {  "left", "down", "right", "up", };
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (direction != dirs[i]) { Sprite.RotateFlip(RotateFlipType.Rotate90FlipNone); }
+                            else { break; }
+                        }
+                        direction = "left";
                         rightTimer?.Dispose();
                         leftTimer?.Dispose();
                         leftTimer = new System.Threading.Timer(new TimerCallback((s) =>
@@ -82,6 +115,13 @@ namespace Project.GameClasses
                     }
                 case Keys.S:
                     {
+                        string[] dirs = {  "down", "right", "up", "left" };
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (Game.Player.direction != dirs[i]) { Sprite.RotateFlip(RotateFlipType.Rotate90FlipNone); }
+                            else { break; }
+                        }
+                        direction = "down";
                         upTimer?.Dispose();
                         downTimer?.Dispose();
                         downTimer = new System.Threading.Timer(new TimerCallback((s) =>
@@ -92,6 +132,13 @@ namespace Project.GameClasses
                     }
                 case Keys.D:
                     {
+                        string[] dirs = {  "right", "up", "left", "down" };
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (Game.Player.direction != dirs[i]) { Sprite.RotateFlip(RotateFlipType.Rotate90FlipNone); }
+                            else { break; }
+                        }
+                        direction = "right";
                         leftTimer?.Dispose();
                         rightTimer?.Dispose();
                         rightTimer = new System.Threading.Timer(new TimerCallback((s) =>
@@ -141,12 +188,68 @@ namespace Project.GameClasses
 
         public void UseFirstWeapon()
         {
-            FirstWeapon?.Use();
+            if (FirstWeaponCooldownTimer == null ) {
+                FirstWeapon?.Use();
+                FirstWeaponCooldownTimer = new System.Threading.Timer(new TimerCallback((s) =>
+                {
+                    FirstWeaponCooldownTimer?.Dispose();
+                    FirstWeaponCooldownTimer = null;
+                }), null, 500, Timeout.Infinite);
+            }
+            
         }
 
         public void UseSecondWeapon()
         {
-            SecondWeapon?.Use();
+            if (SecondWeaponCooldownTimer == null)
+            {
+                SecondWeapon?.Use();
+                SecondWeaponCooldownTimer = new System.Threading.Timer(new TimerCallback((s) =>
+                {
+                    SecondWeaponCooldownTimer?.Dispose();
+                    SecondWeaponCooldownTimer = null;
+                }), null, 500, Timeout.Infinite);
+            }
+        }
+
+        public void PickupItem()
+        {
+            
+            foreach (PickableItemEntity item in Game.Items)
+            {
+                if (Math.Sqrt(Math.Pow(Y - item.Y, 2) + Math.Pow(X - item.X, 2)) <= Size / 2 + item.Size / 2)       //игрок касается
+                {
+                    
+                    if (item.AssociatedItem is Weapon)
+                    {
+                        var temp = SecondWeapon;
+                        SecondWeapon = FirstWeapon;
+                        FirstWeapon =(Weapon) item.AssociatedItem;
+                        Game.RemovePickup();
+                        Game.AddItem(temp, item.X, item.Y);
+                        break;
+                    }
+
+                    if (item.AssociatedItem is Armor)
+                    {
+                        var temp = Armor;
+                        Armor = (Armor)item.AssociatedItem;
+                        Game.RemovePickup();
+                        Game.AddItem(temp, item.X, item.Y);
+                        break;
+                    }
+
+                    if (item.AssociatedItem is Consumable)
+                    {
+                        var temp = Consumable;
+                        Consumable = (Consumable)item.AssociatedItem;
+                        Game.RemovePickup();
+                        Game.AddItem(temp, item.X, item.Y);
+                        break;
+                    }
+
+                }
+            }
         }
 
         public override void DecreaseHealth(double delta)
@@ -194,6 +297,7 @@ namespace Project.GameClasses
         }
         private void moveUp()
         {
+            if (Y < 30) { ExitReached(); }
             short collisions = 0;
             Entity? collisionTarget = null;
             List<Entity?> potentialCollisions = getNearEnviroment();    //проверка только соседних элементов в сетке окружения
@@ -234,7 +338,7 @@ namespace Project.GameClasses
 
 
             if (Y - Size / 2 - 5 < 0)return;
-            Y -= 5;  //можно обработать диагональность
+            Y -= 5;
         }
 
         private void moveDown()

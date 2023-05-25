@@ -8,4 +8,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="Serialization">
+      <HintPath>..\..\Serialization\Serialization\bin\Debug\net7.0\Serialization.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

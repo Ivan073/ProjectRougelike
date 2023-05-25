@@ -5,16 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.GameClasses.Items
+namespace Project.GameClasses.Items.Weapons
 {
-    internal class AreaWeaponEntity : WeaponEntity
+    public class AreaWeaponEntity : WeaponEntity
     {
+        public new static Image? Sprite = Image.FromFile("Images/areaWeapon.png");
+
         AreaWeapon AssociatedWeapon;
 
         private System.Threading.Timer? duration = null;
         private System.Threading.Timer? damageTimer = null;
 
-        public AreaWeaponEntity(AreaWeapon associatedWeapon) {
+        public AreaWeaponEntity(AreaWeapon associatedWeapon)
+        {
             AssociatedWeapon = associatedWeapon;
             X = (int)(Control.MousePosition.X / Window.ScreenScale);
             Y = (int)(Control.MousePosition.Y / Window.ScreenScale);
@@ -27,7 +30,7 @@ namespace Project.GameClasses.Items
                 damageTimer.Dispose();
                 damageTimer = null;
                 duration = null;
-            }), null, (int)(associatedWeapon.Duration*1000), -1);
+            }), null, (int)(associatedWeapon.Duration * 1000), -1);
 
             damageTimer = new System.Threading.Timer(new TimerCallback((s) =>
             {
@@ -37,7 +40,7 @@ namespace Project.GameClasses.Items
                     {
                         if (Math.Sqrt(Math.Pow(Y - enemy.Y, 2) + Math.Pow(X - enemy.X, 2)) < Size / 2 + enemy.Size / 2)
                         {
-                             Task.Factory.StartNew(()=>enemy.DecreaseHealth(associatedWeapon.Damage / 200));
+                            Task.Factory.StartNew(() => enemy.DecreaseHealth(associatedWeapon.Damage / 200));
                         }
                     }
                 }

@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.GameClasses.Items
+namespace Project.GameClasses.Items.Weapons
 {
-    internal abstract class Weapon : Item
+    public abstract class Weapon : Item
     {
         public double Damage { get; set; }
         public double Size { get; set; }
         public double Duration { get; set; }
-        public Weapon(double damage, double size, double duration,double cost) { 
+        public Weapon(double damage, double size, double duration, double cost)
+        {
             Damage = damage;
             Duration = duration;
             Size = size;

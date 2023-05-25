@@ -1,7 +1,6 @@
 ﻿using Project.GameClasses.Enemies;
 using Project.GameClasses.EnviromentObjects.RoundEnvirometObjects;
 using Project.GameClasses.EnviromentObjects.SquareEnviromentObjects;
-using Project.GameClasses.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,80 +9,10 @@ using System.Threading.Tasks;
 
 namespace Project.GameClasses.Strategies
 {
-    public class Charger:Strategy
+    internal class DestroyerCharger : Charger
     {
-        protected const int speed = 2;
-        protected bool collides = false;
-        public Charger(Enemy enemy) : base(enemy) {
-            determinerTimer = new System.Threading.Timer(new TimerCallback((s) =>
-            {
-                var random = new Random();
-                this.determiner = random.Next(2);
-            }), null, 0, 3000);
-            BehaveTimer = new System.Threading.Timer(new TimerCallback((s) =>
-            {
-                Behave();
-            }), null, 0, 5);
-        }
-
-        private int determiner=0;
-        private System.Threading.Timer? determinerTimer = null;
-
-        public override void Behave()
-        {
-            
-            if(determiner == 1) {
-                if (owner.X - speed >= Game.Player.X) { moveLeft(); }
-                else if (owner.X + speed <= Game.Player.X) { moveRight(); }
-                else { collides = false; }
-
-                if (!collides)
-                {
-                    if (owner.Y - speed >= Game.Player.Y) { moveUp(); }
-                    else if (owner.Y + speed <= Game.Player.Y) { moveDown(); }
-                }
-            }
-            else
-            {
-                if (owner.Y + speed <= Game.Player.Y) { moveDown(); }
-                else if (owner.Y - speed >= Game.Player.Y) { moveUp(); }
-                else { collides = false; }
-
-                if (!collides)
-                {
-                    if (owner.X + speed <= Game.Player.X) { moveRight(); }
-                    else if (owner.X - speed >= Game.Player.X) { moveLeft(); }
-                    
-                }
-            }
-            
-
-            if (Math.Sqrt(Math.Pow(owner.Y - Game.Player.Y, 2) + Math.Pow(owner.X + speed - Game.Player.X, 2)) < Game.Player.Size / 2 + owner.Size / 2)
-            {
-                Game.Player.DecreaseHealth(owner.Damage / 100);
-            }
-        }
-
-        protected List<Entity?> getNearEnviroment()
-        {
-            int approximateGridX = owner.X / 50;
-            int approximateGridY = owner.Y / 50;
-
-            if (approximateGridY < 0 || approximateGridY > 17 || approximateGridX < 0 || approximateGridX > 31) { return new List<Entity?>(); }
-            List<Entity?> potentialCollisions = new List<Entity?>() { Game.EnviromentGrid[approximateGridY][approximateGridX] };
-
-            if (approximateGridY > 0) potentialCollisions.Add(Game.EnviromentGrid[approximateGridY - 1][approximateGridX]);
-            if (approximateGridY < 17) potentialCollisions.Add(Game.EnviromentGrid[approximateGridY + 1][approximateGridX]);
-            if (approximateGridX > 0) potentialCollisions.Add(Game.EnviromentGrid[approximateGridY][approximateGridX - 1]);
-            if (approximateGridX < 31) potentialCollisions.Add(Game.EnviromentGrid[approximateGridY][approximateGridX + 1]);
-
-            if (approximateGridY > 0 && approximateGridX > 0) potentialCollisions.Add(Game.EnviromentGrid[approximateGridY - 1][approximateGridX - 1]);
-            if (approximateGridY < 17 && approximateGridX > 0) potentialCollisions.Add(Game.EnviromentGrid[approximateGridY + 1][approximateGridX - 1]);
-            if (approximateGridY > 0 && approximateGridX < 31) potentialCollisions.Add(Game.EnviromentGrid[approximateGridY - 1][approximateGridX + 1]);
-            if (approximateGridY < 17 && approximateGridX < 31) potentialCollisions.Add(Game.EnviromentGrid[approximateGridY + 1][approximateGridX + 1]);
-            return potentialCollisions;
-        }
-        protected virtual void moveUp()
+        public DestroyerCharger(Enemy enemy) : base(enemy) { }
+        protected override void moveUp()
         {
             short collisions = 0;
             Entity? collisionTarget = null;
@@ -95,6 +24,7 @@ namespace Project.GameClasses.Strategies
                 {
                     if (Math.Sqrt(Math.Pow(owner.Y - speed - obj.Y, 2) + Math.Pow(owner.X - obj.X, 2)) < owner.Size / 2 + obj.Size / 2)
                     {
+                        ((RoundEnviromentObject)obj).DecreaseHealth(owner.Damage / 100);
                         collisions++;
                         collisionTarget = obj;
                         if (collisions > 1) { return; }
@@ -105,6 +35,7 @@ namespace Project.GameClasses.Strategies
                 {
                     if (Math.Abs(owner.Y - speed - obj.Y) < owner.Size / 2 + obj.Size / 2 && Math.Abs(owner.X - obj.X) < owner.Size / 2 + obj.Size / 2)
                     {
+                        ((SquareEnviromentObject)obj).DecreaseHealth(owner.Damage / 100);
                         collisions++;
                         collisionTarget = obj;
                         if (collisions > 1) { return; }
@@ -130,7 +61,7 @@ namespace Project.GameClasses.Strategies
             owner.Y -= speed;
         }
 
-        protected virtual void moveDown()
+        protected override void moveDown()
         {
             short collisions = 0;
             Entity? collisionTarget = null;
@@ -142,6 +73,7 @@ namespace Project.GameClasses.Strategies
                 {
                     if (Math.Sqrt(Math.Pow(owner.Y + speed - obj.Y, 2) + Math.Pow(owner.X - obj.X, 2)) < owner.Size / 2 + obj.Size / 2)
                     {
+                        ((RoundEnviromentObject)obj).DecreaseHealth(owner.Damage / 100);
                         collisions++;
                         collisionTarget = obj;
                         if (collisions > 1) { return; }
@@ -152,6 +84,7 @@ namespace Project.GameClasses.Strategies
                 {
                     if (Math.Abs(owner.Y + speed - obj.Y) < owner.Size / 2 + obj.Size / 2 && Math.Abs(owner.X - obj.X) < owner.Size / 2 + obj.Size / 2)
                     {
+                        ((SquareEnviromentObject)obj).DecreaseHealth(owner.Damage / 100);
                         collisions++;
                         collisionTarget = obj;
                         if (collisions > 1) { return; }
@@ -177,7 +110,7 @@ namespace Project.GameClasses.Strategies
             owner.Y += speed;
         }
 
-        protected virtual void moveLeft()
+        protected override void moveLeft()
         {
             short collisions = 0;
             Entity? collisionTarget = null;
@@ -189,6 +122,7 @@ namespace Project.GameClasses.Strategies
                 {
                     if (Math.Sqrt(Math.Pow(owner.Y - obj.Y, 2) + Math.Pow(owner.X - speed - obj.X, 2)) < owner.Size / 2 + obj.Size / 2)
                     {
+                        ((RoundEnviromentObject)obj).DecreaseHealth(owner.Damage / 100);
                         collisions++;
                         collisionTarget = obj;
                         if (collisions > 1) { return; }
@@ -199,6 +133,7 @@ namespace Project.GameClasses.Strategies
                 {
                     if (Math.Abs(owner.Y - obj.Y) < owner.Size / 2 + obj.Size / 2 && Math.Abs(owner.X - speed - obj.X) < owner.Size / 2 + obj.Size / 2)
                     {
+                        ((SquareEnviromentObject)obj).DecreaseHealth(owner.Damage / 100);
                         collisions++;
                         collisionTarget = obj;
                         if (collisions > 1) { return; }
@@ -224,7 +159,7 @@ namespace Project.GameClasses.Strategies
             owner.X -= speed;
         }
 
-        protected virtual void moveRight()
+        protected override void moveRight()
         {
             short collisions = 0;
             Entity? collisionTarget = null;
@@ -236,6 +171,7 @@ namespace Project.GameClasses.Strategies
                 {
                     if (Math.Sqrt(Math.Pow(owner.Y - obj.Y, 2) + Math.Pow(owner.X + speed - obj.X, 2)) < owner.Size / 2 + obj.Size / 2)
                     {
+                        ((RoundEnviromentObject)obj).DecreaseHealth(owner.Damage / 100);
                         collisions++;
                         collisionTarget = obj;
                         if (collisions > 1) { return; }
@@ -246,6 +182,7 @@ namespace Project.GameClasses.Strategies
                 {
                     if (Math.Abs(owner.Y - obj.Y) < owner.Size / 2 + obj.Size / 2 && Math.Abs(owner.X + speed - obj.X) < owner.Size / 2 + obj.Size / 2)
                     {
+                        ((SquareEnviromentObject)obj).DecreaseHealth(owner.Damage / 100);
                         collisions++;
                         collisionTarget = obj;
                         if (collisions > 1) { return; }
@@ -270,6 +207,5 @@ namespace Project.GameClasses.Strategies
             if (owner.X + owner.Size / 2 + speed > 1600) return;
             owner.X += speed;
         }
-        
     }
 }

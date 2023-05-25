@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Project.GameClasses.Items
 {
-    internal class Armor: Item
+    public class Armor: Item
     {
+        public new static Image? Sprite = Image.FromFile("Images/armor.png");
+
         public double DefencePercent { get; set; } //правильная дробь
 
         private bool active = false;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Project.GameClasses.Items
 {
-    internal abstract class Item
+    public abstract class Item
     {
         public double Cost { get; set; }
         public abstract void Use();

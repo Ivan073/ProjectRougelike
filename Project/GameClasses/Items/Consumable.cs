@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Project.GameClasses.Items
 {
-    internal abstract class Consumable: Item
+    
+    public abstract class Consumable: Item
     {
+        public Consumable() { }
     }
 }
